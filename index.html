@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RodTransfert · Envoyez jusqu'à 3 Go</title>
+  <meta name="description" content="RodTransfert : déposez vos fichiers, obtenez un lien, partagez. Jusqu'à 3 Go, gratuit et sans inscription.">
+  <meta name="theme-color" content="#0d0b14">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <meta property="og:title" content="RodTransfert">
+  <meta property="og:description" content="Déposez vos fichiers, partagez le lien. Jusqu'à 3 Go, gratuit.">
+  <meta property="og:image" content="assets/img/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+    <div class="grain"></div>
+  </div>
+
+  <header class="top">
+    <a class="logo" href="./">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M6 14l6-6 6 6"/><path d="M12 8v11"/></svg>
+      </span>
+      Rod<b>Transfert</b>
+    </a>
+    <span class="badge"><i></i>Gratuit · Sans inscription</span>
+  </header>
+
+  <main class="layout">
+    <section class="hero">
+      <p class="eyebrow">Transfert de fichiers</p>
+      <h1>Vos fichiers,<br><em>d'un geste.</em></h1>
+      <p class="lead">Glissez, déposez, partagez le lien. Jusqu'à <strong>3 Go</strong> par transfert, sans créer de compte.</p>
+      <ol class="steps">
+        <li><span>01</span>Déposez</li>
+        <li><span>02</span>Transférez</li>
+        <li><span>03</span>Partagez</li>
+      </ol>
+
+      <div class="history" id="history" hidden>
+        <div class="history-head">
+          <h2>Vos derniers transferts</h2>
+          <button class="text-btn" id="clearHistory" type="button">Effacer</button>
+        </div>
+        <ul id="historyList"></ul>
+      </div>
+    </section>
+
+    <section class="card" id="card" aria-live="polite">
+      <!-- 1. Sélection -->
+      <div class="state" id="stateSelect">
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="Ajouter des fichiers">
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <p class="drop-title">Glissez vos fichiers ici</p>
+          <p class="drop-sub">ou <span class="link">parcourez</span> votre appareil</p>
+          <input type="file" id="fileInput" multiple hidden>
+        </div>
+
+        <div class="row-actions">
+          <button class="chip" id="folderBtn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Ajouter un dossier
+          </button>
+          <button class="chip ghost" id="clearBtn" type="button" hidden>Tout retirer</button>
+          <input type="file" id="folderInput" webkitdirectory multiple hidden>
+        </div>
+
+        <ul class="files" id="fileList"></ul>
+
+        <div class="meter">
+          <div class="meter-bar"><span id="meterFill"></span></div>
+          <div class="meter-txt">
+            <span><strong id="meterUsed">0 o</strong> sur 3 Go</span>
+            <span id="fileCount">Aucun fichier</span>
+          </div>
+        </div>
+
+        <button class="primary" id="sendBtn" type="button" disabled>
+          Transférer
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      <!-- 2. Envoi -->
+      <div class="state hidden" id="stateUpload">
+        <div class="ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-track" cx="60" cy="60" r="52"/>
+            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"/>
+          </svg>
+          <div class="ring-label"><span id="pct">0</span><small>%</small></div>
+        </div>
+        <p class="state-title">Envoi en cours…</p>
+        <p class="state-sub" id="uploadName">Préparation</p>
+        <div class="stats">
+          <div><small>Envoyé</small><strong id="statSent">0 o</strong></div>
+          <div><small>Vitesse</small><strong id="statSpeed">…</strong></div>
+          <div><small>Restant</small><strong id="statEta">…</strong></div>
+        </div>
+        <button class="secondary" id="cancelBtn" type="button">Annuler</button>
+      </div>
+
+      <!-- 3. Terminé -->
+      <div class="state hidden" id="stateDone">
+        <div class="done-icon">
+          <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <p class="state-title">C'est envoyé !</p>
+        <p class="state-sub" id="doneSummary">Votre lien est prêt.</p>
+        <div class="link-box">
+          <input id="shareLink" type="text" readonly aria-label="Lien de téléchargement">
+          <button class="copy" id="copyBtn" type="button">Copier</button>
+        </div>
+        <div class="row-actions center">
+          <a class="chip" id="openLink" href="#" target="_blank" rel="noopener">Ouvrir le lien</a>
+          <button class="chip" id="shareBtn" type="button" hidden>Partager</button>
+        </div>
+        <button class="secondary" id="newBtn" type="button">Nouveau transfert</button>
+      </div>
+
+      <!-- 4. Erreur -->
+      <div class="state hidden" id="stateError">
+        <div class="done-icon error">
+          <svg viewBox="0 0 24 24"><path d="M12 7v6M12 17h.01"/></svg>
+        </div>
+        <p class="state-title">Oups, l'envoi a échoué</p>
+        <p class="state-sub" id="errorMsg">Une erreur est survenue.</p>
+        <button class="primary" id="retryBtn" type="button">Réessayer</button>
+        <button class="secondary" id="backBtn" type="button">Modifier la sélection</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>© <span id="year"></span> RodTransfert</span>
+    <span>Fichiers hébergés via Gofile</span>
+  </footer>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="overlay-inner">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+      <p>Lâchez pour ajouter</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
